@@ -7,6 +7,44 @@ enum Direction {
     Left = 3,
 }
 
+fn can_move(
+    (i, j): (usize, usize),
+    direction: Direction,
+    wall_horizontal: &Vec<Vec<char>>,
+    wall_vertical: &Vec<Vec<char>>,
+) -> bool {
+    match direction {
+        Direction::Up => {
+            if i == 0 {
+                false
+            } else {
+                wall_horizontal[i - 1][j] == '.'
+            }
+        }
+        Direction::Right => {
+            if j == wall_vertical[i].len() {
+                false
+            } else {
+                wall_vertical[i][j] == '.'
+            }
+        }
+        Direction::Down => {
+            if i == wall_horizontal.len() {
+                false
+            } else {
+                wall_horizontal[i][j] == '.'
+            }
+        }
+        Direction::Left => {
+            if j == 0 {
+                false
+            } else {
+                wall_vertical[i][j - 1] == '.'
+            }
+        }
+    }
+}
+
 fn main() {
     input! {
         n: usize,
@@ -14,21 +52,6 @@ fn main() {
         wall_vertical: [[char; n - 1]; n],
         dirtiness: [[u32; n]; n]
     };
-    // initialize
-    let mut graph = vec![vec![vec![false; 4]; n]; n];
-    for i in 0..n {
-        for j in 0..n {
-            if i < n - 1 && wall_horizontal[i][j] == '1' {
-                graph[i][j][Direction::Down as usize] = true;
-                graph[i + 1][j][Direction::Up as usize] = true;
-            }
-            if j < n - 1 && wall_vertical[i][j] == '1' {
-                graph[i][j][Direction::Right as usize] = true;
-                graph[i][j + 1][Direction::Left as usize] = true;
-            }
-        }
-    }
-    let graph = graph;
     let mut ans = Vec::<Direction>::new();
 
     // output
