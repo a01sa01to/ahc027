@@ -1,4 +1,7 @@
-use std::collections::VecDeque;
+use std::{
+    cmp::Reverse,
+    collections::{BinaryHeap, VecDeque},
+};
 
 use proconio::input;
 
@@ -46,6 +49,7 @@ fn can_move(
                 wall_vertical[i][j - 1] == '.'
             }
         }
+        _ => unreachable!(),
     }
 }
 
@@ -62,16 +66,42 @@ fn dfs(
         return (i, j) == (0, 0);
     }
 
-    // 次に行く場所を決める
-    let mut nxt = Vec::<(usize, usize)>::new();
+    // 次に行く場所を探す
+    let mut nxt = BinaryHeap::<Reverse<(usize, (usize, usize))>>::new();
     for dir in 0..4 {
         if can_move((i, j), dir, wall_horizontal, wall_vertical) {
-            let (ni, nj) = (
-                (i as i64 + DX[dir as usize]) as usize,
-                (j as i64 + DY[dir as usize]) as usize,
-            );
-            nxt.push((ni, nj));
+            let (ni, nj) = ((i as i64 + DX[dir]) as usize, (j as i64 + DY[dir]) as usize);
+            let offset = wants_turn[ni][nj].1;
+            let wants = &mut wants_turn[ni][nj].0;
+            if wants.is_empty() {
+                continue;
+            }
+            let want = wants.pop_front().unwrap();
+            if offset == 0 && (ni, nj) != (0, 0) {
+                nxt.push(Reverse((0, (ni, nj))));
+            } else {
+                nxt.push(Reverse((want + offset - turn, (ni, nj))));
+            }
         }
+    }
+    if nxt.is_empty() {
+        return false;
+    }
+
+    while let Some(Reverse((want1, (ni, nj)))) = nxt.pop() {
+        if dfs(
+            (ni, nj),
+            ans,
+            wants_turn,
+            wall_horizontal,
+            wall_vertical,
+            turn + 1,
+        ) {
+            ans[turn] = (ni, nj);
+            return true;
+        }
+        let offset = wants_turn[ni][nj].1;
+        wants_turn[ni][nj].0.push_front(want1 - offset + turn);
     }
 
     false
@@ -194,6 +224,7 @@ fn main() {
             RIGHT => print!("R"),
             DOWN => print!("D"),
             LEFT => print!("L"),
+            _ => unreachable!(),
         }
     }
     println!();
