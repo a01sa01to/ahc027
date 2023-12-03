@@ -106,6 +106,15 @@ fn main() {
         max_len
     );
 
+    let mut wants_turn = vec![vec![Vec::<usize>::new(); n]; n];
+    for i in 0..n {
+        for j in 0..n {
+            for k in 0..num_visit[i][j] {
+                wants_turn[i][j].push(k * len / num_visit[i][j]);
+            }
+        }
+    }
+
     let mut ans = vec![(!0, !0); len];
 
     // output
