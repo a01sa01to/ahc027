@@ -3,7 +3,7 @@ use std::{
     collections::{BinaryHeap, VecDeque},
 };
 
-use proconio::input;
+use proconio::{input, marker::Chars};
 
 type Direction = usize;
 const UP: Direction = 0;
@@ -25,28 +25,28 @@ fn can_move(
             if i == 0 {
                 false
             } else {
-                wall_horizontal[i - 1][j] == '.'
+                wall_horizontal[i - 1][j] == '0'
             }
         }
         RIGHT => {
             if j == wall_vertical[i].len() {
                 false
             } else {
-                wall_vertical[i][j] == '.'
+                wall_vertical[i][j] == '0'
             }
         }
         DOWN => {
             if i == wall_horizontal.len() {
                 false
             } else {
-                wall_horizontal[i][j] == '.'
+                wall_horizontal[i][j] == '0'
             }
         }
         LEFT => {
             if j == 0 {
                 false
             } else {
-                wall_vertical[i][j - 1] == '.'
+                wall_vertical[i][j - 1] == '0'
             }
         }
         _ => unreachable!(),
@@ -110,32 +110,32 @@ fn dfs(
 fn main() {
     input! {
         n: usize,
-        wall_horizontal: [[char; n]; n - 1],
-        wall_vertical: [[char; n - 1]; n],
+        wall_horizontal: [Chars; n - 1],
+        wall_vertical: [Chars; n],
         dirtiness: [[usize; n]; n]
     };
 
     // 何回訪れたいか決める
-    let mut num_visit = dirtiness.clone();
     let max_len = 100_000;
+    let mut num_visit = dirtiness.clone();
     // 周りを見て不可能なものは減らす
     {
         for i in 0..n {
             for j in 0..n {
-                let mut dig = 0;
+                let mut deg = 0;
                 if can_move((i, j), UP, &wall_horizontal, &wall_vertical) {
-                    dig += num_visit[i - 1][j];
+                    deg += dirtiness[i - 1][j];
                 }
                 if can_move((i, j), RIGHT, &wall_horizontal, &wall_vertical) {
-                    dig += num_visit[i][j + 1];
+                    deg += dirtiness[i][j + 1];
                 }
                 if can_move((i, j), DOWN, &wall_horizontal, &wall_vertical) {
-                    dig += num_visit[i + 1][j];
+                    deg += dirtiness[i + 1][j];
                 }
                 if can_move((i, j), LEFT, &wall_horizontal, &wall_vertical) {
-                    dig += num_visit[i][j - 1];
+                    deg += dirtiness[i][j - 1];
                 }
-                num_visit[i][j] = num_visit[i][j].min(dig / 2);
+                num_visit[i][j] = dirtiness[i][j].min(deg / 2);
             }
         }
 
