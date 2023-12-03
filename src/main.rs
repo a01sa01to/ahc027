@@ -56,8 +56,8 @@ fn main() {
     // 何回訪れたいか決める
     let mut num_visit = dirtiness.clone();
     let max_len = 100_000;
+    // 周りを見て不可能なものは減らす
     {
-        // 周りを見て不可能なものは減らす
         for i in 0..n {
             for j in 0..n {
                 let mut dig = 0;
@@ -92,6 +92,8 @@ fn main() {
             }
         }
     }
+
+    // 行動の長さを決める
     let num_visit = num_visit;
     let mut len = 0;
     for i in 0..n {
@@ -106,6 +108,7 @@ fn main() {
         max_len
     );
 
+    // いつ行きたいか求める
     let mut wants_turn = vec![vec![Vec::<usize>::new(); n]; n];
     for i in 0..n {
         for j in 0..n {
@@ -115,6 +118,7 @@ fn main() {
         }
     }
 
+    // いい感じに求める
     let mut ans = vec![(!0, !0); len];
 
     // output
