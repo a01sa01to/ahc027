@@ -52,7 +52,6 @@ fn main() {
         wall_vertical: [[char; n - 1]; n],
         dirtiness: [[usize; n]; n]
     };
-    let mut ans = Vec::<Direction>::new();
 
     // 何回訪れたいか決める
     let mut num_visit = dirtiness.clone();
@@ -107,9 +106,36 @@ fn main() {
         max_len
     );
 
+    let mut ans = vec![(!0, !0); len];
+
     // output
-    for direction in ans {
-        match direction {
+    for i in 0..len {
+        let (nowi, nowj) = ans[i];
+        let (nxti, nxtj) = ans[(i + 1) % len];
+        assert!(
+            (nowi != nxti && nowj == nxtj && (nowi + 1 == nxti || nowi == nxti + 1))
+                || (nowi == nxti && nowj != nxtj && (nowj + 1 == nxtj || nowj == nxtj + 1)),
+            "[turn {}] not continuous: ({}, {}) -> ({}, {})",
+            i,
+            nowi,
+            nowj,
+            nxti,
+            nxtj
+        );
+        let dir = {
+            if nowi + 1 == nxti {
+                Direction::Down
+            } else if nowi == nxti + 1 {
+                Direction::Up
+            } else if nowj + 1 == nxtj {
+                Direction::Right
+            } else if nowj == nxtj + 1 {
+                Direction::Left
+            } else {
+                unreachable!()
+            }
+        };
+        match dir {
             Direction::Up => print!("U"),
             Direction::Right => print!("R"),
             Direction::Down => print!("D"),
