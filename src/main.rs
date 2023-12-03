@@ -50,9 +50,62 @@ fn main() {
         n: usize,
         wall_horizontal: [[char; n]; n - 1],
         wall_vertical: [[char; n - 1]; n],
-        dirtiness: [[u32; n]; n]
+        dirtiness: [[usize; n]; n]
     };
     let mut ans = Vec::<Direction>::new();
+
+    // 何回訪れたいか決める
+    let mut num_visit = dirtiness.clone();
+    let max_len = 100_000;
+    {
+        // 周りを見て不可能なものは減らす
+        for i in 0..n {
+            for j in 0..n {
+                let mut dig = 0;
+                if can_move((i, j), Direction::Up, &wall_horizontal, &wall_vertical) {
+                    dig += num_visit[i - 1][j];
+                }
+                if can_move((i, j), Direction::Right, &wall_horizontal, &wall_vertical) {
+                    dig += num_visit[i][j + 1];
+                }
+                if can_move((i, j), Direction::Down, &wall_horizontal, &wall_vertical) {
+                    dig += num_visit[i + 1][j];
+                }
+                if can_move((i, j), Direction::Left, &wall_horizontal, &wall_vertical) {
+                    dig += num_visit[i][j - 1];
+                }
+                num_visit[i][j] = num_visit[i][j].min(dig / 2);
+            }
+        }
+
+        let mut len = 0;
+        for i in 0..n {
+            for j in 0..n {
+                len += num_visit[i][j];
+            }
+        }
+
+        if len > max_len {
+            for i in 0..n {
+                for j in 0..n {
+                    num_visit[i][j] = num_visit[i][j] * max_len / len;
+                }
+            }
+        }
+    }
+    let num_visit = num_visit;
+    let mut len = 0;
+    for i in 0..n {
+        for j in 0..n {
+            len += num_visit[i][j];
+        }
+    }
+    assert!(
+        len <= max_len,
+        "len is {}, which is larger than max_len {}",
+        len,
+        max_len
+    );
 
     // output
     for direction in ans {
